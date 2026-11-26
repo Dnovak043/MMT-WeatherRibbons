@@ -21,7 +21,12 @@
 		wxMinRainChance: 30,
 		wxMinRainAmount: 0.02,
 		wxMinCloudCover: 50,
+		wxShowRain: true,
 		wxShowClouds: true,
+		wxShowWind: true,
+		wxShowUV: true,
+		wxWidth: 20,
+		wxDaySpacing: 0.8,
 		wxChartHeight: 35,
 		wxStartHour: 0,
 		wxEndHour: 24,
@@ -37,6 +42,7 @@
 	const state = {};
 	const isOurs = (m) => (m.config.themeCustomScripts || []).includes(SCRIPT);
 	const cfg = (m, key) => m.config[key] ?? DEFAULTS[key];
+	const shows = (m, what) => cfg(m, `wxShow${what}`) !== false;
 
 	/* ---------- colors ---------- */
 
@@ -172,12 +178,12 @@
 			wind: max(hrs.map((h) => h.wind)),
 			uv: max(hrs.map((h) => h.uv))
 		};
-		s.rainQ = s.rain > cfg(m, "wxMinRainChance") || s.rainAmount >= cfg(m, "wxMinRainAmount");
-		s.cloudQ = cfg(m, "wxShowClouds") !== false && s.clouds > cfg(m, "wxMinCloudCover");
+		s.rainQ = shows(m, "Rain") && (s.rain > cfg(m, "wxMinRainChance") || s.rainAmount >= cfg(m, "wxMinRainAmount"));
+		s.cloudQ = shows(m, "Clouds") && s.clouds > cfg(m, "wxMinCloudCover");
 		s.pages = [];
 		if (s.rainQ || s.cloudQ) s.pages.push("sky");
-		if (s.wind > cfg(m, "wxMinWind")) s.pages.push("wind");
-		if (s.uv > cfg(m, "wxMinUV")) s.pages.push("uv");
+		if (shows(m, "Wind") && s.wind > cfg(m, "wxMinWind")) s.pages.push("wind");
+		if (shows(m, "UV") && s.uv > cfg(m, "wxMinUV")) s.pages.push("uv");
 		return s;
 	}
 
@@ -256,10 +262,20 @@
 			+ "</g></svg>";
 	}
 
+	// A number is in em (scales with tableClass); a string is any CSS length, like "400px"
+	function setLength (el, prop, value) {
+		if (typeof value === "number" && value >= 0) el.style.setProperty(prop, `${value}em`);
+		else if (typeof value === "string" && value.trim()) el.style.setProperty(prop, value.trim());
+	}
+
 	function decorate (m, div) {
 		const st = state[m.identifier];
 		const list = div.querySelector(".wx-list");
-		if (list) list.style.setProperty("--wx-fade", `${cfg(m, "wxFadeSeconds")}s`);
+		if (list) {
+			list.style.setProperty("--wx-fade", `${cfg(m, "wxFadeSeconds")}s`);
+			setLength(list, "--wx-width", cfg(m, "wxWidth"));
+			setLength(list, "--wx-day-spacing", cfg(m, "wxDaySpacing"));
+		}
 
 		const rows = [...div.querySelectorAll(".wx-row")];
 		if (!st.hourly || !rows.length) return;
@@ -273,11 +289,17 @@
 		const wkMin = Math.min(...temps);
 		const span = (Math.max(...temps) - wkMin) || 1;
 		const chartHeight = Math.max(12, Math.min(60, parseFloat(cfg(m, "wxChartHeight")) || HEIGHT));
-		const showClouds = cfg(m, "wxShowClouds") !== false;
+		const showRain = shows(m, "Rain");
+		const showClouds = shows(m, "Clouds");
 
 		rows.forEach((row, i) => {
-			// With clouds turned off, the deck follows rain chance instead of cloud cover
-			const hrs = showClouds ? days[i] : days[i].map((h) => ({ ...h, cloud: h.prob }));
+			// Rain off: no gray and no drops on the deck. Clouds off: the deck follows rain chance.
+			const hrs = days[i].map((h) => ({
+				...h,
+				prob: showRain ? h.prob : 0,
+				amt: showRain ? h.amt : 0,
+				cloud: showClouds ? h.cloud : h.prob
+			}));
 			if (!hrs.length) return;
 			const s = summarize(m, hrs);
 			row.dataset.q = s.pages.join(" ");

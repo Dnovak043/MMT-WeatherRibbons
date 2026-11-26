@@ -38,8 +38,13 @@ Then set up the weather module in `config/config.js`:
     themeCustomScripts: ["wx-forecast.js?v=1"],
     wxStartHour: 0,
     wxEndHour: 24,
+    wxWidth: 20,
+    wxDaySpacing: 0.8,
     wxChartHeight: 35,
+    wxShowRain: true,
     wxShowClouds: true,
+    wxShowWind: true,
+    wxShowUV: true,
     wxMinUV: 4,
     wxMinWind: 5,
     wxMinRainChance: 30,
@@ -69,8 +74,13 @@ Then bump the number in `themeCustomScripts` (for example `?v=2`) so the mirror 
 |---|---|---|
 | `wxStartHour` | `0` | First hour shown on the ribbon (0 = midnight) |
 | `wxEndHour` | `24` | Hour the ribbon ends (24 = midnight). Thresholds only look at the shown hours. |
+| `wxWidth` | `20` | Width of the list. A number is in em, so it scales with `tableClass`; a string is any CSS width, like `"400px"`. Ribbons get taller with it so nothing stretches. Below about 14em the row runs out of room. |
+| `wxDaySpacing` | `0.8` | Space below each day, in em (or a CSS length string like `"16px"`) |
 | `wxChartHeight` | `35` | Ribbon height, 12–60. Lower is shorter. |
-| `wxShowClouds` | `true` | `false` hides cloud cover; the deck then follows rain chance |
+| `wxShowRain` | `true` | `false` hides rain (chance and drops). The deck then shows cloud cover only. |
+| `wxShowClouds` | `true` | `false` hides cloud cover. The deck then follows rain chance. |
+| `wxShowWind` | `true` | `false` removes the wind page |
+| `wxShowUV` | `true` | `false` removes the UV page |
 | `wxMinUV` | `4` | Show UV when the day's peak is above this |
 | `wxMinWind` | `5` | Show wind when the day's peak is above this, in your `windUnits` |
 | `wxMinRainChance` | `30` | Show rain when the day's peak chance (%) is above this |
@@ -83,11 +93,7 @@ Stock settings that still apply: `tableClass` (text size), `maxNumberOfDays`, `r
 
 ## Styling
 
-`weather.css` holds MagicMirror's stock weather styles plus this theme's layout, and the module loads it automatically. For your own tweaks, use `config/custom.css`, which loads afterwards. For example, a wider list (the ribbons scale with it):
-
-```css
-.module.weather.wx-forecast { --wx-width: 26em; }
-```
+`weather.css` holds MagicMirror's stock weather styles plus this theme's layout, and the module loads it automatically. For your own tweaks, use `config/custom.css`, which loads afterwards.
 
 The layout uses MagicMirror's color variables and `em` sizes, follows `tableClass`, and lines up with its region (right, left, center or bar).
 
