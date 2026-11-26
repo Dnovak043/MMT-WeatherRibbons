@@ -138,90 +138,118 @@
 /* ===== Weather: forecast view (classes: "wx-forecast") =====
    Styles the stock weather module with the MMT-WeatherRibbons theme.
    Sizes are in em, so everything scales with tableClass in config.js.
-   Colors use MagicMirror's theme variables, with the same roles as the stock forecast. */
+   Colors use MagicMirror's theme variables, with the same roles as the stock forecast.
+
+   Each day is one line (DAY  LOW / HIGH  ...  VARIABLE) with the ribbon under it.
+   The line never wraps: if the list is too narrow, the day name is cut short with "…"
+   instead, so the temperatures and the charted value always stay readable. */
 
 .module.weather.wx-forecast .wx-list {
   display: block;
-  width: var(--wx-width, 20em);   /* override: .module.weather.wx-forecast { --wx-width: 26em; } */
+  width: var(--wx-width, 20em);   /* wxWidth */
   text-align: left;
 }
 
-/* Follow the region: right column hugs the right edge, center regions and bars center */
-.region.right .module.weather.wx-forecast .wx-list {
-  margin-left: auto;
+/* Follow the region the module is in: left column hugs the left edge, right column the
+   right edge, and center regions and full-width bars center it. The left, center and right
+   columns sit inside the top and bottom bars, so match only the module's own region (>). */
+.region.left > .container > .module.weather.wx-forecast .wx-list {
+  margin-left: 0;
+  margin-right: auto;
 }
 
-.region.center .module.weather.wx-forecast .wx-list,
-.region.bar .module.weather.wx-forecast .wx-list,
-.region.third .module.weather.wx-forecast .wx-list {
+.region.right > .container > .module.weather.wx-forecast .wx-list {
+  margin-left: auto;
+  margin-right: 0;
+}
+
+.region.center > .container > .module.weather.wx-forecast .wx-list,
+.region.bar > .container > .module.weather.wx-forecast .wx-list,
+.region.third > .container > .module.weather.wx-forecast .wx-list {
   margin-left: auto;
   margin-right: auto;
 }
 
-/* One day: day, icon slot, low, high, then the ribbon on its own line */
+/* One day: the text line, then the ribbon */
 .module.weather.wx-forecast .weather-forecast-row {
+  display: block;
+  padding-bottom: var(--wx-day-spacing, 0.8em);   /* wxDaySpacing */
+}
+
+.module.weather.wx-forecast .wx-line {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  column-gap: 0;
-  padding-bottom: var(--wx-day-spacing, 0.8em);   /* space between days: wxDaySpacing */
+}
+
+/* The stock CSS reorders these cells; keep them in template order */
+.module.weather.wx-forecast .wx-line > * {
+  order: 0;
 }
 
 .module.weather.wx-forecast .day {
-  flex: none;
-  min-width: 4.6em;
-  padding-right: 0.5em;
+  flex: 0 1 4.6em;          /* width of the day column; shrinks only when space runs out */
+  min-width: 0;
+  padding-right: 0.3em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   text-align: left;
 }
 
-/* Icon slot: takes the leftover space, so narrow lists still fit on one line.
-   Its layers stack on top of each other and crossfade. */
-.module.weather.wx-forecast .wx-slot {
-  position: relative;
-  flex: 1 1 0;
-  min-width: 3.4em;
-  height: 1.25em;
+.module.weather.wx-forecast .min-temp,
+.module.weather.wx-forecast .max-temp {
+  flex: none;
+  white-space: nowrap;
+}
+
+.module.weather.wx-forecast .min-temp {
+  min-width: 1.9em;
+  padding-right: 0;
+  text-align: right;
+}
+
+.module.weather.wx-forecast .max-temp {
+  min-width: 1.9em;
+  padding: 0;
   text-align: left;
+}
+
+.module.weather.wx-forecast .max-temp::before {
+  content: "/";
+  padding: 0 0.2em;
+  color: var(--color-text-dimmed);
+}
+
+/* Charted variable, against the right edge. Its layers share one grid cell, so the
+   slot is always as wide as its widest value and can never run into the temperatures. */
+.module.weather.wx-forecast .wx-slot {
+  flex: none;
+  display: grid;
+  margin-left: auto;
+  padding-left: 0.4em;
+  text-align: right;
 }
 
 .module.weather.wx-forecast .wx-slot .wx-layer {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
+  grid-area: 1 / 1;
+  justify-self: end;
   display: flex;
   align-items: center;
-  gap: 0.35em;
+  gap: 0.25em;
   white-space: nowrap;
 }
 
 .module.weather.wx-forecast .wx-val {
-  font-size: 0.8em;
+  font-size: 0.75em;
 }
 
 .module.weather.wx-forecast .wx-rain   { color: #85b7eb; }
 .module.weather.wx-forecast .wx-clouds,
 .module.weather.wx-forecast .wx-wind   { color: var(--color-text-bright); }
 
-/* Gap between low and high matches the stock forecast (25px at the default size)
-   and tightens on narrow lists */
-.module.weather.wx-forecast .min-temp {
-  flex: none;
-  min-width: 2.2em;
-  text-align: right;
-}
-
-.module.weather.wx-forecast .max-temp {
-  flex: none;
-  min-width: 2.2em;
-  padding-left: clamp(0.6em, 6%, 1.25em);
-  text-align: right;
-}
-
 /* Ribbon height follows the list width, so shapes never stretch */
 .module.weather.wx-forecast .wx-ribbon {
-  order: 10;
-  flex-basis: 100%;
   margin-top: 0.15em;
 }
 

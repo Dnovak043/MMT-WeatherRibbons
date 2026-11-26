@@ -1,4 +1,4 @@
-{# wx-forecast theme: the stock forecast.njk with an icon slot and an empty ribbon per day. #}
+{# MMT-WeatherRibbons: the stock forecast.njk, laid out as DAY  LOW / HIGH  VARIABLE, with an empty ribbon per day. #}
 {# wx-forecast.js fills in the ribbons and the rotating icons. #}
 {% if forecast %}
   {% set numSteps = forecast | calcNumSteps %}
@@ -10,18 +10,20 @@
     {% set forecast = forecast.slice(0, numSteps) %}
     {% for f in forecast %}
       <div class="weather-forecast-row wx-row" role="row" data-date="{{ f.date.format('YYYY-MM-DD') }}">
-        {% if (currentStep == 0) and config.ignoreToday == false and config.absoluteDates == false %}
-          <div class="day" role="cell">{{ "TODAY" | translate }}</div>
-        {% elif (currentStep == 1) and config.ignoreToday == false and config.absoluteDates == false %}
-          <div class="day" role="cell">{{ "TOMORROW" | translate }}</div>
-        {% else %}
-          <div class="day" role="cell">{{ f.date.format(config.forecastDateFormat) }}</div>
-        {% endif %}
-        <div class="bright weather-icon wx-slot" role="cell">
-          <span class="wx-layer" data-v="wx"><span class="wi weathericon wi-{{ f.weatherType }}"></span></span>
+        <div class="wx-line">
+          {% if (currentStep == 0) and config.ignoreToday == false and config.absoluteDates == false %}
+            <div class="day" role="cell">{{ "TODAY" | translate }}</div>
+          {% elif (currentStep == 1) and config.ignoreToday == false and config.absoluteDates == false %}
+            <div class="day" role="cell">{{ "TOMORROW" | translate }}</div>
+          {% else %}
+            <div class="day" role="cell">{{ f.date.format(config.forecastDateFormat) }}</div>
+          {% endif %}
+          <div class="align-right min-temp" role="cell">{{ f.minTemperature | roundValue | unit("temperature") | decimalSymbol }}</div>
+          <div class="bright max-temp" role="cell">{{ f.maxTemperature | roundValue | unit("temperature") | decimalSymbol }}</div>
+          <div class="bright weather-icon wx-slot" role="cell">
+            <span class="wx-layer" data-v="wx"><span class="wi weathericon wi-{{ f.weatherType }}"></span></span>
+          </div>
         </div>
-        <div class="align-right min-temp" role="cell">{{ f.minTemperature | roundValue | unit("temperature") | decimalSymbol }}</div>
-        <div class="align-right bright max-temp" role="cell">{{ f.maxTemperature | roundValue | unit("temperature") | decimalSymbol }}</div>
         <div class="wx-ribbon" aria-hidden="true"></div>
       </div>
       {% set currentStep = currentStep + 1 %}

@@ -74,7 +74,7 @@ Then bump the number in `themeCustomScripts` (for example `?v=2`) so the mirror 
 |---|---|---|
 | `wxStartHour` | `0` | First hour shown on the ribbon (0 = midnight) |
 | `wxEndHour` | `24` | Hour the ribbon ends (24 = midnight). Thresholds only look at the shown hours. |
-| `wxWidth` | `20` | Width of the list. A number is in em, so it scales with `tableClass`; a string is any CSS width, like `"400px"`. Ribbons get taller with it so nothing stretches. Below about 14em the row runs out of room. |
+| `wxWidth` | `20` | Width of the list. A number is in em, so it scales with `tableClass`; a string is any CSS width, like `"400px"`. Ribbons get taller with it so nothing stretches. Below about 12em long day names are cut short with "…"; the temperatures and value always stay on one line. |
 | `wxDaySpacing` | `0.8` | Space below each day, in em (or a CSS length string like `"16px"`) |
 | `wxChartHeight` | `35` | Ribbon height, 12–60. Lower is shorter. |
 | `wxShowRain` | `true` | `false` hides rain (chance and drops). The deck then shows cloud cover only. |
@@ -95,7 +95,7 @@ Stock settings that still apply: `tableClass` (text size), `maxNumberOfDays`, `r
 
 `weather.css` holds MagicMirror's stock weather styles plus this theme's layout, and the module loads it automatically. For your own tweaks, use `config/custom.css`, which loads afterwards.
 
-The layout uses MagicMirror's color variables and `em` sizes, follows `tableClass`, and lines up with its region (right, left, center or bar).
+Each day reads `DAY  LOW / HIGH  …  VARIABLE`, with the ribbon underneath. The layout uses MagicMirror's color variables and `em` sizes, follows `tableClass`, and lines up with its region (right, left, center or bar).
 
 ## How it works
 
