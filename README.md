@@ -38,7 +38,7 @@ Then set up the weather modules in `config/config.js`. Current view:
     roundTemp: true,
     themeDir: "../../../modules/MMT-WeatherRibbons",
     themeCustomScripts: ["wx-forecast.js"],
-    wxCurrentChartHeight: 60,
+    wxChartHeight: 60,
     wxAlertRainChance: 60,
     wxAlertWind: 20,
     wxAlertUV: 6,
@@ -105,8 +105,8 @@ Write `themeCustomScripts` exactly as `["wx-forecast.js"]`. MagicMirror decides 
 | `wxStartHour` | `0` | First hour shown on the ribbon (0 = midnight) |
 | `wxEndHour` | `24` | Hour the ribbon ends (24 = midnight). Thresholds only look at the shown hours. |
 | `wxWidth` | `20` | Width of the list. A number is in em, so it scales with `tableClass`; a string is any CSS width, like `"400px"`. Ribbons get taller with it so nothing stretches. Below about 12em long day names are cut short with "…"; the temperatures and value always stay on one line. |
-| `wxDaySpacing` | `0.8` | Space below each day, in em (or a CSS length string like `"16px"`) |
-| `wxChartHeight` | `35` | Ribbon height, 12–60. Lower is shorter. |
+| `wxDaySpacing` | `0.8` | Forecast: space below each day. Current: space between the sentence, hour labels and chart. In em, or a CSS length string like `"16px"`. |
+| `wxChartHeight` | `35` / `60` | Ribbon height, 12–120. Default 35 in the forecast view, 60 in the current view. |
 | `wxShowRain` | `true` | `false` hides rain (chance and drops). The deck then shows cloud cover only. |
 | `wxShowClouds` | `true` | `false` hides cloud cover. The deck then follows rain chance. |
 | `wxShowWind` | `true` | `false` removes the wind page |
@@ -122,11 +122,10 @@ Write `themeCustomScripts` exactly as `["wx-forecast.js"]`. MagicMirror decides 
 | `wxAlertUV` | `6` | Current view: UV gets a sentence above this |
 | `wxAlertFeelsDiff` | `6` | Current view: feels-like gets a sentence at this many degrees of difference |
 | `wxShowFeels` | `true` | Current view: `false` removes the feels-like page |
-| `wxCurrentChartHeight` | `60` | Current view: ribbon height, 20–120 |
 | `wxPageSeconds` | `8` | Seconds per page |
 | `wxFadeSeconds` | `1.2` | Crossfade length in seconds |
 
-In the current view, the `wxMin…` thresholds look at the rest of today, so the UV page goes away after sunset and the rain page once the rain has passed. Each module has its own config, so the two views can use different thresholds.
+In the current view, the `wxMin…` thresholds look at the rest of today, so the UV page goes away after sunset and the rain page once the rain has passed. Each module has its own config, so the two views can use different values for every setting. All forecast settings work in the current view too.
 
 Stock settings that still apply: `tableClass` (text size), `maxNumberOfDays`, `roundTemp`, `ignoreToday`, `forecastDateFormat`, `units`, `tempUnits`, `windUnits`.
 

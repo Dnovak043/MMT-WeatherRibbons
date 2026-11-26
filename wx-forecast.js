@@ -46,8 +46,7 @@
 		// Layout
 		wxWidth: 20,
 		wxDaySpacing: 0.8,
-		wxChartHeight: 35,
-		wxCurrentChartHeight: 60,
+		wxChartHeight: null, // 35 in the forecast view, 60 in the current view
 		wxStartHour: 0,
 		wxEndHour: 24,
 		// Rotation
@@ -371,7 +370,7 @@
 		if (!temps.length) return;
 		const wkMin = Math.min(...temps);
 		const span = (Math.max(...temps) - wkMin) || 1;
-		const chartHeight = Math.max(12, Math.min(60, parseFloat(cfg(m, "wxChartHeight")) || HEIGHT));
+		const chartHeight = Math.max(12, Math.min(120, parseFloat(cfg(m, "wxChartHeight")) || HEIGHT));
 
 		rows.forEach((row, i) => {
 			const hrs = forDrawing(m, days[i]);
@@ -471,6 +470,7 @@
 		if (!root) return;
 		root.style.setProperty("--wx-fade", `${cfg(m, "wxFadeSeconds")}s`);
 		setLength(root, "--wx-width", cfg(m, "wxWidth"));
+		setLength(root, "--wx-day-spacing", cfg(m, "wxDaySpacing")); // space between sections here
 		if (!st.hourly) return;
 
 		const g = geometry(m);
@@ -503,7 +503,8 @@
 		const lo = Math.min(...values);
 		const span = (Math.max(...values) - lo) || 1;
 		const Y = (t) => BASE - (4 + ((t - lo) / span) * 22);
-		const chartHeight = Math.max(20, Math.min(120, parseFloat(cfg(m, "wxCurrentChartHeight")) || 60));
+		// wxChartHeight, like the forecast (wxCurrentChartHeight still works, from an earlier version)
+		const chartHeight = Math.max(12, Math.min(120, parseFloat(m.config.wxChartHeight ?? m.config.wxCurrentChartHeight) || 60));
 		const k = chartHeight / HEIGHT;
 		const id = `wxc-${m.identifier}-${st.renders}`;
 		const pts = edgePoints(hrs, g, (h) => Y(h.temp));

@@ -311,7 +311,7 @@
    without the chart moving */
 .module.weather .wx-cur-alerts {
   display: grid;
-  margin-top: 0.4em;
+  margin-top: calc(var(--wx-day-spacing, 0.8em) / 2);   /* wxDaySpacing */
   min-height: 1.25em;
 }
 
@@ -331,7 +331,7 @@
 .module.weather .wx-cur-axis {
   display: flex;
   justify-content: space-between;
-  margin-top: 0.8em;
+  margin-top: var(--wx-day-spacing, 0.8em);   /* wxDaySpacing */
 }
 
 .module.weather .wx-cur-chart {
