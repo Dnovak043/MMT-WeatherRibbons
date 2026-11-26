@@ -1,0 +1,232 @@
+/*
+ * MMT-WeatherRibbons: theme styles for MagicMirror's stock weather module.
+ * Part 1 is MagicMirror's stock defaultmodules/weather/weather.css (MIT License,
+ * Copyright (c) Michael Teeuw), unchanged, because the module loads this file instead
+ * of its own when themeDir is set. Part 2 is the wx-forecast layout.
+ * Personal tweaks belong in config/custom.css, which loads after this file and wins.
+ */
+
+/* ---------- Part 1: stock weather.css ---------- */
+
+.weather .weathericon,
+.weather .fa-home {
+  font-size: 75%;
+}
+
+.weather .humidity-icon {
+  padding-right: 4px;
+}
+
+.weather .humidity-padding {
+  padding-bottom: 6px;
+}
+
+.weather .weather-forecast,
+.weather .weather-hourly {
+  display: grid;
+  width: max-content;
+  grid-template-columns: repeat(7, max-content);
+}
+
+.weather .weather-forecast-row,
+.weather .weather-hourly-row {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: baseline;
+  column-gap: 25px;
+}
+
+.weather .day {
+  white-space: nowrap;
+}
+
+.weather .weather-icon {
+  text-align: center;
+}
+
+.weather .min-temp {
+  padding-right: 0;
+}
+
+.weather .max-temp,
+.weather .precipitation-amount,
+.weather .precipitation-prob,
+.weather .humidity-hourly,
+.weather .uv-index {
+  padding: 0;
+}
+
+.weather .weather-hidden {
+  visibility: hidden;
+}
+
+.weather .weather-forecast .day {
+  order: var(--weather-forecast-day-order, 1);
+}
+
+.weather .weather-forecast .weather-icon {
+  order: var(--weather-forecast-icon-order, 2);
+}
+
+.weather .weather-forecast .min-temp {
+  order: var(--weather-forecast-min-temp-order, 3);
+}
+
+.weather .weather-forecast .max-temp {
+  order: var(--weather-forecast-max-temp-order, 4);
+}
+
+.weather .weather-forecast .uv-index {
+  order: var(--weather-forecast-uv-index-order, 5);
+}
+
+.weather .weather-forecast .precipitation-amount {
+  order: var(--weather-forecast-precipitation-amount-order, 6);
+}
+
+.weather .weather-forecast .precipitation-prob {
+  order: var(--weather-forecast-precipitation-prob-order, 7);
+}
+
+.weather .weather-hourly .time {
+  order: var(--weather-hourly-time-order, 1);
+  white-space: nowrap;
+}
+
+.weather .weather-hourly .weather-icon {
+  order: var(--weather-hourly-icon-order, 2);
+  text-align: center;
+}
+
+.weather .weather-hourly .temperature {
+  order: var(--weather-hourly-temperature-order, 3);
+}
+
+.weather .weather-hourly .uv-index {
+  order: var(--weather-hourly-uv-index-order, 4);
+}
+
+.weather .weather-hourly .humidity-hourly {
+  order: var(--weather-hourly-humidity-order, 5);
+}
+
+.weather .weather-hourly .precipitation-amount {
+  order: var(--weather-hourly-precipitation-amount-order, 6);
+}
+
+.weather .weather-hourly .precipitation-prob {
+  order: var(--weather-hourly-precipitation-prob-order, 7);
+}
+
+.weather .weather-forecast-row.colored .min-temp {
+  color: #bcddff;
+}
+
+.weather .weather-forecast-row.colored .max-temp {
+  color: #ff8e99;
+}
+
+.weather .type-temp {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+/* ---------- Part 2: wx-forecast ---------- */
+
+/* ===== Weather: forecast view (classes: "wx-forecast") =====
+   Styles the stock weather module with the MMT-WeatherRibbons theme.
+   Sizes are in em, so everything scales with tableClass in config.js.
+   Colors use MagicMirror's theme variables, with the same roles as the stock forecast. */
+
+.module.weather.wx-forecast .wx-list {
+  display: block;
+  width: var(--wx-width, 20em);   /* override: .module.weather.wx-forecast { --wx-width: 26em; } */
+  text-align: left;
+}
+
+/* Follow the region: right column hugs the right edge, center regions and bars center */
+.region.right .module.weather.wx-forecast .wx-list {
+  margin-left: auto;
+}
+
+.region.center .module.weather.wx-forecast .wx-list,
+.region.bar .module.weather.wx-forecast .wx-list,
+.region.third .module.weather.wx-forecast .wx-list {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* One day: day, icon slot, low, high, then the ribbon on its own line */
+.module.weather.wx-forecast .weather-forecast-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 0;
+  padding-bottom: 0.35em;
+}
+
+.module.weather.wx-forecast .day {
+  min-width: 4.6em;
+  padding-right: 0.5em;
+  text-align: left;
+}
+
+/* Icon slot: layers stack on top of each other and crossfade */
+.module.weather.wx-forecast .wx-slot {
+  position: relative;
+  width: 5em;
+  height: 1.25em;
+  text-align: left;
+}
+
+.module.weather.wx-forecast .wx-slot .wx-layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+  white-space: nowrap;
+}
+
+.module.weather.wx-forecast .wx-val {
+  font-size: 0.8em;
+}
+
+.module.weather.wx-forecast .wx-rain   { color: #85b7eb; }
+.module.weather.wx-forecast .wx-clouds,
+.module.weather.wx-forecast .wx-wind   { color: var(--color-text-bright); }
+
+/* Same spacing as the stock forecast (25px at the default size) */
+.module.weather.wx-forecast .min-temp {
+  min-width: 2.4em;
+  margin-left: auto;
+  text-align: right;
+}
+
+.module.weather.wx-forecast .max-temp {
+  min-width: 2.4em;
+  padding-left: 1.25em;
+  text-align: right;
+}
+
+/* Ribbon height follows the list width, so shapes never stretch */
+.module.weather.wx-forecast .wx-ribbon {
+  order: 10;
+  flex-basis: 100%;
+  margin-top: 0.15em;
+}
+
+.module.weather.wx-forecast .wx-ribbon svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Crossfade timing comes from wxFadeSeconds in config.js */
+.module.weather.wx-forecast .wx-layer {
+  transition: opacity var(--wx-fade, 1.2s) ease-in-out;
+}
