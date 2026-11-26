@@ -263,3 +263,111 @@
 .module.weather.wx-forecast .wx-layer {
   transition: opacity var(--wx-fade, 1.2s) ease-in-out;
 }
+
+/* ===== Weather: current view (MMT-WeatherRibbons current.njk) =====
+   Icon and temperature, a plain-language line, then today's ribbon with a now marker,
+   low and high, and upcoming sunrise / sunset. */
+
+.module.weather .wx-cur {
+  width: var(--wx-width, 20em);   /* wxWidth */
+}
+
+/* Follow the region the module is in, like the forecast */
+.region.left > .container > .module.weather .wx-cur {
+  margin-left: 0;
+  margin-right: auto;
+  text-align: left;
+}
+
+.region.right > .container > .module.weather .wx-cur {
+  margin-left: auto;
+  margin-right: 0;
+  text-align: right;
+}
+
+.region.center > .container > .module.weather .wx-cur,
+.region.bar > .container > .module.weather .wx-cur,
+.region.third > .container > .module.weather .wx-cur {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.module.weather .wx-cur-head {
+  justify-content: flex-start;
+}
+
+.region.right > .container > .module.weather .wx-cur-head {
+  justify-content: flex-end;
+}
+
+.region.center > .container > .module.weather .wx-cur-head,
+.region.bar > .container > .module.weather .wx-cur-head,
+.region.third > .container > .module.weather .wx-cur-head {
+  justify-content: center;
+}
+
+/* Plain-language line: one layer per page, stacked in one grid cell so they crossfade
+   without the chart moving */
+.module.weather .wx-cur-alerts {
+  display: grid;
+  margin-top: 0.4em;
+  min-height: 1.25em;
+}
+
+.module.weather .wx-cur-alerts .wx-layer {
+  grid-area: 1 / 1;
+}
+
+.module.weather .wx-cur-alerts .wi {
+  margin-right: 0.15em;
+}
+
+.module.weather .wx-cur .wx-rain  { color: #85b7eb; }
+.module.weather .wx-cur .wx-wind  { color: var(--color-text-bright); }
+.module.weather .wx-cur .wx-feels { color: #b5d4f4; }
+
+/* Hour labels above the ribbon */
+.module.weather .wx-cur-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.8em;
+}
+
+.module.weather .wx-cur-chart {
+  position: relative;
+  margin-top: 0.2em;
+}
+
+.module.weather .wx-cur-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.module.weather .wx-cur-chart text {
+  font-size: 10px;   /* in ribbon units, so it scales with wxWidth */
+}
+
+.module.weather .wx-cur-chart .wx-low  { fill: var(--color-text); }
+.module.weather .wx-cur-chart .wx-high { fill: var(--color-text-bright); }
+
+.module.weather .wx-cur-chart .wx-now {
+  stroke: var(--color-text-bright);
+  stroke-width: 1.2;
+}
+
+/* Sunrise / sunset icons in the label row */
+.module.weather .wx-sun {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 0.8em;
+  line-height: 1;
+  color: #fac775;
+}
+
+/* Crossfade timing comes from wxFadeSeconds in config.js */
+.module.weather .wx-cur .wx-layer {
+  transition: opacity var(--wx-fade, 1.2s) ease-in-out;
+}

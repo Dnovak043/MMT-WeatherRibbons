@@ -1,6 +1,6 @@
 # MMT-WeatherRibbons
 
-A theme for MagicMirror²'s built-in `weather` module (`type: "forecast"`). It isn't a separate module: it uses the weather module's own `themeDir` and `themeCustomScripts` settings, so nothing in `defaultmodules` is edited and MagicMirror updates don't touch it.
+A theme for MagicMirror²'s built-in `weather` module, for `type: "forecast"` and `type: "current"`. It isn't a separate module: it uses the weather module's own `themeDir` and `themeCustomScripts` settings, so nothing in `defaultmodules` is edited and MagicMirror updates don't touch it.
 
 Each forecast day gets a smooth hourly temperature ribbon. The ribbon and temperatures stay put, while overlays crossfade in rotation:
 
@@ -9,6 +9,10 @@ Each forecast day gets a smooth hourly temperature ribbon. The ribbon and temper
 - **UV:** rays rising off the ribbon, colored by UV risk
 
 An overlay only appears for days that cross your thresholds, and a page is skipped when no day qualifies.
+
+The **current** view shows the current icon and temperature, a plain-language line for anything notable later today ("82% chance of rain tonight around 6 pm", "Winds up to 22 mph this afternoon"), and today's ribbon. The ribbon dims the hours that have passed, marks the current time, labels the low and high, and shows an icon for the upcoming sunrise and sunset. Its overlays rotate through clouds and rain, wind, UV, and feels-like, and the sentence changes with each page. A sentence only appears when a value crosses its alert threshold, and the line disappears when nothing does.
+
+Both views can run at once. They share one Open-Meteo request and switch pages at the same moment.
 
 ## Install
 
@@ -19,7 +23,31 @@ git clone https://github.com/Dnovak043/MMT-WeatherRibbons.git
 
 It goes in `modules/` like any theme, but it isn't a module. MagicMirror only runs modules listed in `config.js`, so this folder does nothing until the weather module points at it.
 
-Then set up the weather module in `config/config.js`:
+Then set up the weather modules in `config/config.js`. Current view:
+
+```js
+{
+  module: "weather",
+  position: "top_right",
+  config: {
+    weatherProvider: "openmeteo",
+    type: "current",
+    lat: 37.7974786,
+    lon: -122.4134004,
+    units: "imperial",
+    roundTemp: true,
+    themeDir: "../../../modules/MMT-WeatherRibbons",
+    themeCustomScripts: ["wx-forecast.js"],
+    wxCurrentChartHeight: 60,
+    wxAlertRainChance: 60,
+    wxAlertWind: 20,
+    wxAlertUV: 6,
+    wxAlertFeelsDiff: 6,
+  }
+},
+```
+
+Forecast view:
 
 ```js
 {
@@ -35,7 +63,7 @@ Then set up the weather module in `config/config.js`:
     units: "imperial",
     roundTemp: true,
     themeDir: "../../../modules/MMT-WeatherRibbons",
-    themeCustomScripts: ["wx-forecast.js?v=1"],
+    themeCustomScripts: ["wx-forecast.js"],
     wxStartHour: 0,
     wxEndHour: 24,
     wxWidth: 20,
@@ -66,7 +94,9 @@ Restart MagicMirror.
 cd ~/MagicMirror/modules/MMT-WeatherRibbons && git pull
 ```
 
-Then bump the number in `themeCustomScripts` (for example `?v=2`) so the mirror doesn't keep a cached copy of the old script, and restart MagicMirror.
+Then restart MagicMirror.
+
+Write `themeCustomScripts` exactly as `["wx-forecast.js"]`. MagicMirror decides how to load a file from the text after the last dot, so something like `wx-forecast.js?v=2` is silently skipped and the theme switches off.
 
 ## Settings
 
@@ -86,8 +116,17 @@ Then bump the number in `themeCustomScripts` (for example `?v=2`) so the mirror 
 | `wxMinRainChance` | `30` | Show rain when the day's peak chance (%) is above this |
 | `wxMinRainAmount` | `0.02` | ...or when any hour reaches this much rain (inches with `units: "imperial"`, otherwise mm) |
 | `wxMinCloudCover` | `50` | Show clouds when the day's average cover (%) is above this |
+| `wxMinFeelsDiff` | `3` | Current view: show feels-like when it differs from the temperature by at least this many degrees |
+| `wxAlertRainChance` | `60` | Current view: rain gets a sentence above this chance (%) |
+| `wxAlertWind` | `20` | Current view: wind gets a sentence above this speed |
+| `wxAlertUV` | `6` | Current view: UV gets a sentence above this |
+| `wxAlertFeelsDiff` | `6` | Current view: feels-like gets a sentence at this many degrees of difference |
+| `wxShowFeels` | `true` | Current view: `false` removes the feels-like page |
+| `wxCurrentChartHeight` | `60` | Current view: ribbon height, 20–120 |
 | `wxPageSeconds` | `8` | Seconds per page |
 | `wxFadeSeconds` | `1.2` | Crossfade length in seconds |
+
+In the current view, the `wxMin…` thresholds look at the rest of today, so the UV page goes away after sunset and the rain page once the rain has passed. Each module has its own config, so the two views can use different thresholds.
 
 Stock settings that still apply: `tableClass` (text size), `maxNumberOfDays`, `roundTemp`, `ignoreToday`, `forecastDateFormat`, `units`, `tempUnits`, `windUnits`.
 
@@ -100,9 +139,10 @@ Each day reads `DAY  LOW / HIGH  …  VARIABLE`, with the ribbon underneath. The
 ## How it works
 
 - `forecast.njk` is the stock forecast template with an icon slot and an empty ribbon for each day.
-- `current.njk` and `hourly.njk` are unchanged copies of the stock templates. The docs ask for all four files in a theme folder; this theme only changes the forecast view.
-- `wx-forecast.js` hooks the module's `initWeatherTheme` and `updateWeatherTheme`. It fetches hourly data straight from Open-Meteo (the stock module discards hourly data for forecasts), draws the ribbons, and runs the rotation. It only takes over weather modules that list it in `themeCustomScripts`; any other weather module on the page works as stock.
-- The extra Open-Meteo request asks only for six hourly values (about 8 KB), on the module's `updateInterval`.
+- `current.njk` keeps the stock icon-and-temperature markup and adds empty spots for the sentence and ribbon. The stock current view's wind, humidity, sunrise/sunset row, feels-like line and indoor readings are left out by design.
+- `hourly.njk` is an unchanged copy of the stock template. The docs ask for all four templates in a theme folder.
+- `wx-forecast.js` hooks the module's `initWeatherTheme` and `updateWeatherTheme`. It fetches hourly data straight from Open-Meteo (the stock module only keeps daily or current data), draws the ribbons, and runs the rotation. Pages switch on the clock, so all themed weather modules turn together. It only takes over weather modules that list it in `themeCustomScripts`; any other weather module on the page works as stock.
+- The extra Open-Meteo request asks only for the seven hourly values it uses plus sunrise and sunset, on the module's `updateInterval`. Modules on the same location share it.
 
 ## License
 
